@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+
+broadcast chan send_join, ack_sent, send_request, reset, not_delivered;
+
+chan  creating_space,  no_space, created_ack, ok_space, full;
+
+bool first_truck_moved = false;
+
+bool second_truck_moved = false;</declaration>
+	<template>
+		<name x="5" y="5">RequestTruck</name>
+		<declaration>// Place local declarations here.
+clock x;
+
+</declaration>
+		<location id="id0" x="-1008" y="-528">
+			<name x="-1080" y="-512">RequestReset_State2</name>
+		</location>
+		<location id="id1" x="-1003" y="-1215">
+			<name x="-1043" y="-1247">Denied_Response_Received</name>
+		</location>
+		<location id="id2" x="-1216" y="-960">
+			<name x="-1216" y="-992">RequestReset_State1</name>
+		</location>
+		<location id="id3" x="-1488" y="-832">
+			<name x="-1600" y="-840">Find_Platoon</name>
+		</location>
+		<location id="id4" x="-1280" y="-648">
+			<name x="-1360" y="-656">platooned</name>
+		</location>
+		<location id="id5" x="-1008" y="-648">
+			<name x="-1056" y="-680">joined_platoon</name>
+			<label kind="invariant" x="-1024" y="-696">x&lt;=3</label>
+		</location>
+		<location id="id6" x="-808" y="-648">
+			<name x="-792" y="-656">Join_Response_Received</name>
+			<label kind="invariant" x="-776" y="-640">x&lt;=3</label>
+		</location>
+		<location id="id7" x="-808" y="-832">
+			<name x="-792" y="-840">Waiting_for_Response</name>
+			<label kind="invariant" x="-752" y="-824">x&lt;=7</label>
+		</location>
+		<location id="id8" x="-1216" y="-832">
+			<name x="-1264" y="-824">Platoon_Found</name>
+		</location>
+		<init ref="id3"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-984" y="-568">reset?</label>
+			<nail x="-984" y="-568"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-1128" y="-576">not_delivered?</label>
+			<nail x="-1032" y="-568"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id3"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-896" y="-1032">no_space?</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-1296" y="-920">reset?</label>
+			<nail x="-1256" y="-912"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-1176" y="-912">not_delivered?</label>
+			<nail x="-1176" y="-912"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id8"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-1048" y="-856">send_request!</label>
+			<label kind="assignment" x="-1072" y="-832">x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-1168" y="-632">ack_sent!</label>
+			<label kind="assignment" x="-1152" y="-648">x:=0</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-912" y="-648">x==2</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-880" y="-760">send_join?</label>
+			<label kind="assignment" x="-856" y="-744">x:=0</label>
+		</transition>
+	</template>
+	<template>
+		<name>LeadingTruck</name>
+		<declaration>clock y;</declaration>
+		<location id="id9" x="8" y="-544">
+			<name x="24" y="-552">LeaderReset_State3</name>
+		</location>
+		<location id="id10" x="-264" y="-544">
+			<name x="-320" y="-576">Send_No_Space</name>
+		</location>
+		<location id="id11" x="-120" y="104">
+			<name x="-184" y="120">LeaderReset_State2</name>
+		</location>
+		<location id="id12" x="392" y="-264">
+			<name x="408" y="-272">LeaderReset_State1</name>
+		</location>
+		<location id="id13" x="-120" y="-32">
+			<name x="-160" y="-64">Send_to_Join</name>
+		</location>
+		<location id="id14" x="80" y="-32">
+			<name x="96" y="-40">Space_Created</name>
+			<label kind="invariant" x="96" y="-24">y&lt;=3</label>
+		</location>
+		<location id="id15" x="80" y="-264">
+			<name x="32" y="-296">Creating_Space</name>
+			<label kind="invariant" x="56" y="-312">y&lt;=3</label>
+		</location>
+		<location id="id16" x="-600" y="-32">
+			<name x="-728" y="-40">Platoon_Updated</name>
+		</location>
+		<location id="id17" x="-336" y="-32">
+			<name x="-400" y="-64">Waiting_for_Ack</name>
+		</location>
+		<location id="id18" x="-264" y="-264">
+			<name x="-328" y="-256">Check_Availability</name>
+			<label kind="invariant" x="-288" y="-240">y&lt;=3</label>
+		</location>
+		<location id="id19" x="-600" y="-264">
+			<name x="-744" y="-272">Waiting_for_Request</name>
+		</location>
+		<init ref="id19"/>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-112" y="-472">reset?</label>
+			<nail x="-96" y="-472"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="-184" y="-568">not_delivered?</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="-472" y="-448">no_space!</label>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-248" y="-400">full?</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-72" y="48">reset?</label>
+			<nail x="-72" y="40"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-256" y="48">not_delivered?</label>
+			<nail x="-168" y="40"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="272" y="-184">reset?</label>
+			<nail x="272" y="-184"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="192" y="-288">not_delivered?</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="-280" y="-24">send_join!</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-8" y="-24">y&gt;=2</label>
+			<label kind="synchronisation" x="-48" y="-56">created_ack?</label>
+			<label kind="assignment" x="-8" y="-8">y:=0</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="88" y="-160">creating_space!</label>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id15"/>
+			<label kind="guard" x="-120" y="-288">y&gt;=2</label>
+			<label kind="synchronisation" x="-120" y="-264">ok_space?</label>
+			<label kind="assignment" x="-80" y="-288">y:=0</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id19"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="-504" y="-24">ack_sent?</label>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="-520" y="-288">send_request?</label>
+			<label kind="assignment" x="-496" y="-304">y:=0</label>
+		</transition>
+	</template>
+	<template>
+		<name>Truck_already_in_platoon</name>
+		<location id="id20" x="-160" y="-248">
+		</location>
+		<location id="id21" x="72" y="-128">
+		</location>
+		<location id="id22" x="-160" y="-120">
+			<name x="-208" y="-112">Space_Created</name>
+		</location>
+		<location id="id23" x="-400" y="-120">
+			<name x="-544" y="-128">In_Platoon_Already</name>
+		</location>
+		<init ref="id23"/>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id22"/>
+			<label kind="synchronisation" x="-232" y="-224">reset?</label>
+			<nail x="-200" y="-192"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id20"/>
+			<label kind="synchronisation" x="-136" y="-224">not_delivered?</label>
+			<nail x="-128" y="-184"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-184" y="0">send_join?</label>
+			<nail x="64" y="-8"/>
+			<nail x="-392" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="-104" y="-144">created_ack!</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id22"/>
+			<label kind="synchronisation" x="-336" y="-144">creating_space?</label>
+			<nail x="-192" y="-120"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+ProcessRequest = RequestTruck();
+
+ProcessLeader = LeadingTruck();
+
+AnotherRequestTruck = RequestTruck();
+
+AnotherRequestTruck1 = RequestTruck();
+
+Trucks_in_Platoon_Already  = Truck_already_in_platoon();
+
+
+
+// List one or more processes to be composed into a system.
+system ProcessRequest, ProcessLeader, AnotherRequestTruck;
+</system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
