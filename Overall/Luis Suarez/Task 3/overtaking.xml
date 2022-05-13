@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+chan move, continue_on_lane, overtake, get_back_in_lane;
+
+// variables used for overtaking
+bool car_detected = false;
+
+clock time;</declaration>
+	<template>
+		<name x="5" y="5">Truck</name>
+		<declaration>// Place local declarations here.
+clock wait;</declaration>
+		<location id="id0" x="-14084" y="-42">
+			<name x="-14101" y="-25">start</name>
+		</location>
+		<location id="id1" x="-13957" y="-119">
+			<name x="-14042" y="-102">detects_vehicle_to_overtake</name>
+		</location>
+		<location id="id2" x="-13634" y="-195">
+			<name x="-13608" y="-203">perform_overtaking</name>
+		</location>
+		<location id="id3" x="-13872" y="-348">
+			<name x="-13882" y="-382">Error detected</name>
+			<urgent/>
+		</location>
+		<location id="id4" x="-14033" y="-365">
+			<name x="-14043" y="-399">Reset</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<nail x="-13889" y="-348"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<nail x="-13727" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-14118" y="-297">car_detected==false</label>
+			<label kind="assignment" x="-13821" y="-229">car_detected=true</label>
+			<nail x="-14016" y="-272"/>
+			<nail x="-13906" y="-272"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-13846" y="-34">get_back_in_lane!</label>
+			<nail x="-13770" y="-51"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-13702" y="-119">overtake!</label>
+			<nail x="-13804" y="-187"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+		</transition>
+	</template>
+	<template>
+		<name>overtaking</name>
+		<location id="id5" x="-17" y="297">
+			<name x="-34" y="263">start</name>
+		</location>
+		<location id="id6" x="161" y="221">
+			<name x="93" y="238">vehicle_detection</name>
+		</location>
+		<location id="id7" x="374" y="161">
+			<name x="349" y="178">left_turn</name>
+		</location>
+		<location id="id8" x="552" y="102">
+			<name x="542" y="68">right_turn</name>
+		</location>
+		<location id="id9" x="348" y="0">
+			<name x="338" y="-34">vehicle_crossed</name>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="476" y="178">car_detected=false</label>
+			<nail x="399" y="263"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id8"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id9"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<nail x="84" y="77"/>
+			<nail x="229" y="77"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="guard" x="204" y="136">car_detected== true</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="110" y="42">moving</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Truck1= Truck();
+Truck2= Truck();
+cross = overtaking();
+
+// List one or more processes to be composed into a system.
+system Truck1, Truck2, cross; 
+    </system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>
